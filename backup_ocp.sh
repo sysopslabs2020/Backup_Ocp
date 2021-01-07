@@ -2,29 +2,34 @@
 #Author: Luca Santirocchi
 #Version: 1.0
 
+#Export Kube variable for the Backup Software
+export KUBECONFIG="/root/.kube/config"
+
+#If you have a proxy set the variables
 #export http_proxy=""
 #export ftp_proxy=""
 #export https_proxy=""
-Backuplog=/Backup_OCS/backup/backup_$(hostname)_ocs_$(date -I).log
+
+Backuplog=/Backup_OCS/backup/backup_$(hostname)_ocp_$(date -I).log
 
 echo "---------------Inizio Script di Backup----$(date +%H:%M-%Y/%m/%d)------------">>${Backuplog}
 
 echo "-----------Eseguo Login------------------------">>${Backuplog}
 OSname=`hostname`
 
-###if [ $OSname = "covpmlosb1.domain.it" ];
+###if [ $OSname = "covpmlosb1.servizi.prv" ];
 if [ $OSname = "covpmlosb1" ];
 then
-oc login https://console.opencs.domain.it:8443 -u admin -p XXXXXXX
-elif [ $OSname = "ernvlbastion1.domain.it" ];
+oc login https://console.opencs.servizi.prv:8443 -u admin -p Temporanea\$01 --insecure-skip-tls-verify
+elif [ $OSname = "ernvlbastion1.servizi.prv" ];
 then
-oc login https://console.cluster01.prod.opencs.domain.it:8443/ -u admin -p XXXXXXX
-elif [ $OSname = "cpmzbastion1.domain.it" ];
+oc login https://console.cluster01.prod.opencs.servizi.prv:8443/ -u admin -p Temporanea\$01 --insecure-skip-tls-verify
+elif [ $OSname = "cpmzbastion1.servizi.prv" ];
 then
-oc login https://console.clusterzac-collaudo.opencs.domain.it:8443/console -u admin -p XXXXXXX
-elif [ $OSname = "epmzbastion1.domain.it" ];
+oc login https://console.clusterzac-collaudo.opencs.servizi.prv:8443/console -u admin -p Temporanea\$01 --insecure-skip-tls-verify
+elif [ $OSname = "epmzbastion1.servizi.prv" ];
 then
-oc login https://console.clusterzac1.opencs.domain.it:8443/console -u admin -p XXXXXXX
+oc login https://console.clusterzac1.opencs.servizi.prv:8443/console -u admin -p Temporanea\$01 --insecure-skip-tls-verify
 else
 echo "host non valido, lo script può girare solo su questi server bastion: covpmlosb1 ernvlbastion1 cpmzbastion1 epmzbastion1"
 exit
@@ -44,7 +49,7 @@ echo "Esco e verifica se la share NFS Backup_OCS è montata">>${chek}
 exit
 fi
 
-#Backuplog=/Backup_OCS/backup/$(hostname)/backup_$(hostname)_ocs_$(date -I).log
+#Backuplog=/Backup_OCS/backup/$(hostname)/backup_$(hostname)_ocp_$(date -I).log
 
 DATE=`date -I`
 DIR=/Backup_OCS/backup/$(hostname)
@@ -64,7 +69,6 @@ echo "">>${Backuplog}
 echo "">>${Backuplog}
 echo "-------------Inizio Selezione Progetti---------------">>${Backuplog}
 echo "">>${Backuplog}
-
 for project in `oc get projects --no-headers |grep Active |awk '{print $1}'`
 do
 echo "">>${Backuplog}
@@ -73,13 +77,13 @@ echo "">>${Backuplog}
 
   mkdir $project
   cd $project
-  kubectl config use-context $project
+  #kubectl config use-context $project
   oc get -o yaml --export all -n $project >$project-full.yaml
 
 echo "-----------Eseguo Export del progetto $project in un UNICO file yaml ---------------- ">>${Backuplog}
 echo "">>${Backuplog}
 
-  for object in rolebindings configmap serviceaccounts secrets imagestreamtags cm egressnetworkpolicies rolebindingrestrictions limitranges resourcequotas pvc templates cronjobs statefulsets hpa deployments replicasets poddisruptionbudget endpoints
+  for object in rolebindings serviceaccounts secrets imagestreamtags cm egressnetworkpolicies rolebindingrestrictions limitranges resourcequotas pvc templates cronjobs statefulsets hpa deployments replicasets poddisruptionbudget endpoints
   do
 echo "">>${Backuplog}
 echo "-------------Creata Cartella $object---$project------------- ">>${Backuplog}
