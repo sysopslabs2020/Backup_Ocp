@@ -1,15 +1,10 @@
 #!/bin/bash
 #Author: Luca Santirocchi
 #Version: 1.0
-
-#Export Kube variable for the Backup Software
 export KUBECONFIG="/root/.kube/config"
-
-#If you have a proxy set the variables
 #export http_proxy=""
 #export ftp_proxy=""
 #export https_proxy=""
-
 Backuplog=/Backup_OCS/backup/backup_$(hostname)_ocp_$(date -I).log
 
 echo "---------------Inizio Script di Backup----$(date +%H:%M-%Y/%m/%d)------------">>${Backuplog}
@@ -26,12 +21,15 @@ then
 oc login https://console.cluster01.prod.opencs.servizi.prv:8443/ -u admin -p Temporanea\$01 --insecure-skip-tls-verify
 elif [ $OSname = "cpmzbastion1.servizi.prv" ];
 then
-oc login https://console.clusterzac-collaudo.opencs.servizi.prv:8443/console -u admin -p Temporanea\$01 --insecure-skip-tls-verify
+oc login https://console.clusterzac-collaudo.opencs.servizi.prv:8443/ -u admin -p Temporanea\$01 --insecure-skip-tls-verify
 elif [ $OSname = "epmzbastion1.servizi.prv" ];
 then
-oc login https://console.clusterzac1.opencs.servizi.prv:8443/console -u admin -p Temporanea\$01 --insecure-skip-tls-verify
+oc login https://console.clusterzac1.opencs.servizi.prv:8443/ -u admin -p Temporanea\$01 --insecure-skip-tls-verify
+elif [ $OSname = "ernzbastion1.servizi.prv" ];
+then
+oc login https://console.clusterzac2.opencs.servizi.prv:8443/ -u admin -p Temporanea\$01 --insecure-skip-tls-verify
 else
-echo "host non valido, lo script può girare solo su questi server bastion: covpmlosb1 ernvlbastion1 cpmzbastion1 epmzbastion1"
+echo "host non valido, lo script può girare solo su questi server bastion: covpmlosb1 ernvlbastion1 cpmzbastion1 epmzbastion1 ernzbastion1"
 exit
 fi
 
@@ -49,7 +47,7 @@ echo "Esco e verifica se la share NFS Backup_OCS è montata">>${chek}
 exit
 fi
 
-#Backuplog=/Backup_OCS/backup/$(hostname)/backup_$(hostname)_ocp_$(date -I).log
+#Backuplog=/Backup_OCS/backup/$(hostname)/backup_$(hostname)_ocs_$(date -I).log
 
 DATE=`date -I`
 DIR=/Backup_OCS/backup/$(hostname)
